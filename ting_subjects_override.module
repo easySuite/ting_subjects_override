@@ -1,0 +1,87 @@
+<?php
+
+/**
+ * @file
+ * Allow to override ting_details_subjects field.
+ */
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function ting_subjects_override_preprocess_field(&$variables) {
+  if ($variables['element']['#field_name'] == 'ting_details_subjects') {
+    $element = $variables['element'];
+
+    $id = $element['#object']->ding_entity_id;
+    $field = '667';
+    $subfield = '';
+
+    // Make request to search provider and return MARC subjects.
+    $result = ting_subjects_override_get_data($id, $field, $subfield);
+
+    $items = [];
+    // Loop through results.
+    foreach ($result as $key => $item) {
+      // Omitting results with numeric indexes.
+      if (!is_numeric($key)) {
+        // If there are several sub-fields (arrays), we will need to loop them
+        // too.
+        if (is_array($item)) {
+          foreach ($item as $value) {
+            $items[] = $value;
+          }
+        }
+        else {
+          $items[] = $item;
+        }
+      }
+    }
+
+    // Form block of markup which should be returned.
+    $markup = '';
+    foreach ($items as $item) {
+      $markup .= '<span class="ting-material-detail">' . $item . '</span>';
+    }
+
+    // Return items for rendering.
+    $variables['items'][0]['#markup'] = $markup;
+
+    // As we don't need other formats subjects, sometimes result can be empty,
+    // In order to not to show label in such cases, we are hiding this.
+    if (empty($items)) {
+      $variables['label_hidden'] = TRUE;
+    }
+  }
+}
+
+/**
+ * Get field value.
+ *
+ * @param string $id
+ *   Ting object ID.
+ * @param string $field
+ *   MarcXchnage field number.
+ * @param string $subfield
+ *   MarcXchnage subfield name.
+ *
+ * @return null|string
+ *   Field value.
+ */
+function ting_subjects_override_get_data($id, $field, $subfield) {
+  // Handle data loading by other modules first.
+  // All results will be merged.
+  $result = module_invoke_all('marcxchange_data', $id, $field, $subfield);
+  if (!empty($result)) {
+    return implode(' ', $result);
+  }
+
+  // Default data loading: use core ting module's built-in functionality to
+  // fetch marc objects from the data well.
+  module_load_include('inc', 'ting', 'client');
+  $object = ting_get_object_marcxchange($id);
+  if (empty($object)) {
+    return NULL;
+  }
+  $res = $object->getValue($field, $subfield);
+  return $res;
+}
