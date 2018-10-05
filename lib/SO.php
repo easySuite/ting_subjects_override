@@ -38,18 +38,20 @@ class SubjectsOverrides extends TingEntity {
     $results = $subjects->getValue('667', '');
 
     $items = [];
-    foreach ($results as $key => $item) {
-      // Omitting results with numeric indexes.
-      if (!is_numeric($key)) {
-        // If there are several sub-fields (arrays), we will need to loop them
-        // too.
-        if (is_array($item)) {
-          foreach ($item as $value) {
-            $items[] = $value;
+    if (!empty($results)) {
+      foreach ($results as $key => $item) {
+        // Omitting results with numeric indexes.
+        if (!is_numeric($key)) {
+          // If there are several sub-fields (arrays), we will need to loop them
+          // too.
+          if (is_array($item)) {
+            foreach ($item as $value) {
+              $items[] = $value;
+            }
           }
-        }
-        else {
-          $items[] = $item;
+          else {
+            $items[] = $item;
+          }
         }
       }
     }
