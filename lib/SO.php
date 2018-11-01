@@ -29,7 +29,7 @@ class SubjectsOverrides extends TingEntity {
    *   Return array of MARC format subjects.
    */
   public function getSubjects() {
-    $subjects = ting_get_object_marcxchange($this->entity->ding_entity_id);
+    $subjects = opensearch_get_object_marcxchange($this->entity->ding_entity_id);
 
     if (empty($subjects)) {
       return NULL;
