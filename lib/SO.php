@@ -29,34 +29,35 @@ class SubjectsOverrides extends TingEntity {
    *   Return array of MARC format subjects.
    */
   public function getSubjects() {
-    $subjects = opensearch_get_object_marcxchange($this->entity->ding_entity_id);
+    if ($this->entity instanceof TingEntity) {
+      $subjects = ting_get_object_marcxchange($this->entity->ding_entity_id);
 
-    if (empty($subjects)) {
-      return NULL;
-    }
+      if (empty($subjects)) {
+        return NULL;
+      }
 
-    $results = $subjects->getValue('667', '');
+      $results = $subjects->getValue('667', '');
 
-    $items = [];
-    if (!empty($results)) {
-      foreach ($results as $key => $item) {
-        // Omitting results with numeric indexes.
-        if (!is_numeric($key)) {
-          // If there are several sub-fields (arrays), we will need to loop them
-          // too.
-          if (is_array($item)) {
-            foreach ($item as $value) {
-              $items[] = $value;
+      $items = [];
+      if (!empty($results)) {
+        foreach ($results as $key => $item) {
+          // Omitting results with numeric indexes.
+          if (!is_numeric($key)) {
+            // If there are several sub-fields (arrays), we will need to loop them
+            // too.
+            if (is_array($item)) {
+              foreach ($item as $value) {
+                $items[] = $value;
+              }
             }
-          }
-          else {
-            $items[] = $item;
+            else {
+              $items[] = $item;
+            }
           }
         }
       }
+
+      return $this->entity->subjects = $items;
     }
-
-    return $this->entity->subjects = $items;
   }
-
 }
