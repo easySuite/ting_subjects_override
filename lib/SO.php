@@ -27,15 +27,18 @@ class SubjectsOverrides extends TingEntity {
    *
    * @return array|null
    *   Return array of MARC format subjects.
+   * @throws \TingClientException
    */
   public function getSubjects() {
     if ($this->entity instanceof TingEntity) {
-      $subjects = ting_get_object_marcxchange($this->entity->ding_entity_id);
+      /** @var \TingMarcResult $subjects */
+      $subjects = opensearch_get_objects_marcxchange([$this->entity->ding_entity_id]);
 
       if (empty($subjects)) {
         return NULL;
       }
 
+      $subjects = reset($subjects);
       $results = $subjects->getValue('667', '');
 
       $items = [];
