@@ -34,3 +34,27 @@ function ting_subjects_override_entity_prepare_view($entities, $type, $langcode)
     }
   }
 }
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function ting_subjects_override_preprocess_field(&$variables) {
+  $field_name = $variables["element"]["#field_name"];
+
+  if ($field_name == 'ting_subjects') {
+    $object = $variables['element']['#object'];
+
+    if (!empty($object->subjects)) {
+      $search_string = variable_get('ting_search_register_subject', 'phrase.subject="@subject"');
+      $subject_links = array_map(function ($subject) use ($search_string) {
+        $replacement = array('@subject' => $subject);
+        $options = array(
+          'attributes' => array('class' => array('subject')),
+        );
+        return ting_field_search_link($subject, $search_string, $replacement, $options);
+      }, $object->subjects);
+
+      $variables['items'][0]['#markup'] = implode(' ', $subject_links);
+    }
+  }
+}
