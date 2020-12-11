@@ -62,7 +62,7 @@ function ting_subjects_override_preprocess_field(&$variables) {
 /**
  * Implements hook_ding_entity_view().
  */
-function ting_subjects_override_ding_entity_view(&$object, $view_mode) {
+function ting_subjects_override_ding_entity_view($object, $view_mode) {
   if (!empty($object->subjects)) {
     $field_instance = field_info_instance('ting_object', 'ting_subjects', 'ting_object');
 
