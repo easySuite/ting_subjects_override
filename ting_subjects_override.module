@@ -47,14 +47,41 @@ function ting_subjects_override_preprocess_field(&$variables) {
     if (!empty($object->subjects)) {
       $search_string = variable_get('ting_search_register_subject', 'phrase.subject="@subject"');
       $subject_links = array_map(function ($subject) use ($search_string) {
-        $replacement = array('@subject' => $subject);
-        $options = array(
-          'attributes' => array('class' => array('subject')),
-        );
+        $replacement = ['@subject' => $subject];
+        $options = [
+          'attributes' => ['class' => ['subject']],
+        ];
         return ting_field_search_link($subject, $search_string, $replacement, $options);
       }, $object->subjects);
 
       $variables['items'][0]['#markup'] = implode(' ', $subject_links);
     }
+  }
+}
+
+/**
+ * Implements hook_ding_entity_view().
+ */
+function ting_subjects_override_ding_entity_view($object, $view_mode) {
+  if (!empty($object->subjects)) {
+    $field_instance = field_info_instance('ting_object', 'ting_subjects', 'ting_object');
+
+    $options = [
+      '#theme' => 'field',
+      '#title' => t($field_instance['label']),
+      '#weight' => $field_instance['display']['default']['weight'],
+      '#formatter' => $field_instance['display']['default']['type'],
+      '#bundle' => 'ting_object',
+      '#entity_type' => 'ting_object',
+      '#field_name' => 'ting_subjects',
+      '#field_type' => 'ting_subjects',
+      '#object' => $object,
+      '#view_mode' => $view_mode,
+      '#access' => TRUE,
+    ];
+
+    $object->content += [
+      'ting_subjects' => $options,
+    ];
   }
 }
