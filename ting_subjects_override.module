@@ -65,12 +65,17 @@ function ting_subjects_override_preprocess_field(&$variables) {
 function ting_subjects_override_ding_entity_view($object, $view_mode) {
   if (!empty($object->subjects)) {
     $field_instance = field_info_instance('ting_object', 'ting_subjects', 'ting_object');
+    $display = ($view_mode === 'full') ? 'default' : $view_mode;
+
+    if ($field_instance['display'][$display]['type'] === 'hidden') {
+      return;
+    }
 
     $options = [
       '#theme' => 'field',
       '#title' => t($field_instance['label']),
-      '#weight' => $field_instance['display']['default']['weight'],
-      '#formatter' => $field_instance['display']['default']['type'],
+      '#weight' => $field_instance['display'][$display]['weight'],
+      '#formatter' => $field_instance['display'][$display]['type'],
       '#bundle' => 'ting_object',
       '#entity_type' => 'ting_object',
       '#field_name' => 'ting_subjects',
